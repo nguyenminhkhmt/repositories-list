@@ -6,14 +6,20 @@ const theme = {
     navBackground: '#24292e',
     navTextColor: '#ffffff',
     mainComponent: '#e1e4e8',
-    repoItemBackground: 'white',
+    repoItemBackground: '#ffffff',
+    error: "#ff0000",
+    white: "#ffffff",
   },
   fontSizes: {
     body: 14,
     subheading: 16,
   },
   fonts: {
-    main: 'System',
+    main: Platform.select({
+      android: 'Roboto',
+      ios: 'Arial',
+      default: 'System',
+    }),
   },
   fontWeights: {
     normal: '400',
