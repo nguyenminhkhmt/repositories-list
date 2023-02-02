@@ -35,6 +35,7 @@ const FormikTextInput = ({ name, ...props }) => {
         onBlur={() => helpers.setTouched(true)}
         value={field.value}
         error={showError}
+        autoCapitalize="none"
         {...props}
         style={styles.textField}
       />
