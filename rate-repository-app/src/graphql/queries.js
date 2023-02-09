@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { REPOSITORY_DETAILS } from './fragments';
 
 export const GET_REPOSITORIES = gql`
 query Repositories {
@@ -13,33 +14,12 @@ query Repositories {
     edges {
       cursor
       node {
-        createdAt
-        description
-        forksCount
-        fullName
-        id
-        language
-        name
-        ownerAvatarUrl
-        ownerName
-        ratingAverage
-        reviewCount
-        url
-        watchersCount
-        userHasReviewed
-        stargazersCount
+        ...RepositoryDetails
       }
     }
   }
 }
-`;
-
-export const SIGN_IN = gql`
-mutation Authenticate($credentials: AuthenticateInput) {
-  authenticate(credentials: $credentials) {
-    accessToken
-  }
-}
+${REPOSITORY_DETAILS}
 `;
 
 export const GET_ME = gql`
@@ -49,4 +29,26 @@ query Me {
     username
   }
 }
+`;
+
+export const GET_REPOSITORY = gql`
+query Repository($repositoryId: ID!) {
+  repository(id: $repositoryId) {
+    ...RepositoryDetails
+  }
+}
+${REPOSITORY_DETAILS}
+`;
+
+export const SEARCH_REPOSITORY = gql`
+query ($searchKeyword: String) {
+  repositories(searchKeyword: $searchKeyword) {
+    edges {
+      node {
+        ...RepositoryDetails
+      }
+    }
+  }
+}
+${REPOSITORY_DETAILS}
 `;

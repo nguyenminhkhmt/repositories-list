@@ -27,6 +27,13 @@ const theme = {
     normal: '400',
     bold: '700',
   },
+  buttons: {
+    maxWidth: Platform.select({
+      ios: 'auto',
+      android: 'auto',
+      default: 100,
+    })
+  }
 };
 
 export default theme;

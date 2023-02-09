@@ -1,19 +1,11 @@
 import { View, Image, StyleSheet } from "react-native";
 import Text from './Text';
 import theme from "../theme";
+import { HorisontalView, VerticalView} from './Common'
 
 const styles = StyleSheet.create({
   component: {
     backgroundColor: theme.colors.repoItemBackground,
-  },
-  horisontalView: {
-    flexDirection: "row",
-    padding: 8,
-  },
-  verticalView: {
-    flexDirection: "column",
-    alignSelf: "center",
-    flex: 1,
   },
   image: {
     width: 60,
@@ -25,6 +17,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     borderRadius: 4,
     alignSelf: "left",
+    width: theme.buttons.maxWidth,
   },
   language: {
     color: "white",
@@ -40,9 +33,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-const HorisontalView = props => <View style={styles.horisontalView}>{props.children}</View>;
-const VerticalView = props => <View style={styles.verticalView}>{props.children}</View>;
 
 const RepositoryHeader = ({ repository }) => {
   return (
@@ -97,7 +87,7 @@ const RepositoryStatistics = props => {
 
 const RepositoryItem = props => {
   return (
-    <View style={styles.component}>
+    <View style={styles.component} testID="repositoryItem">
       <RepositoryHeader {...props} />
       <RepositoryStatistics {...props} />
     </View>

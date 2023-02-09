@@ -1,31 +1,8 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View } from 'react-native';
 import { Formik } from 'formik';
 import FormikTextInput from './FormikTextInput';
-
-import Text from './Text';
-import { StyleSheet } from 'react-native';
-import theme from '../theme';
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    backgroundColor: theme.colors.primary,
-  },
-  text: {
-    fontSize: 16,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
-    color: theme.colors.white,
-  },
-});
+import PrimaryButton from './PrimaryButton';
 
 const SignIn = (props) => (
   <Formik
@@ -51,9 +28,7 @@ const SignIn = (props) => (
       <View>
         <FormikTextInput name="username" placeholder="Username" />
         <FormikTextInput name="password" placeholder="Password" secureTextEntry />
-        <Pressable style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.text}>Sign in</Text>
-        </Pressable>
+        <PrimaryButton onPress={handleSubmit} label="Sign in"/>
       </View>
     )}
   </Formik>
