@@ -1,5 +1,4 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
-import Constants from 'expo-constants';
 import theme from '../theme';
 import AppbarTab from './AppBarTab';
 import useCurrentUser from '../hooks/useCurrentUser';
@@ -9,7 +8,6 @@ import { Link } from "react-router-native";
 const styles = StyleSheet.create({
   appBar: {
     backgroundColor: theme.colors.navBackground,
-    paddingTop: Constants.statusBarHeight,
     display: 'flex',
     flexDirection: 'row',
   },
@@ -19,6 +17,7 @@ const LoggedInTabs = ({ handleSignOut }) => {
   return (
     <View style={{ flexDirection: "row" }}>
       <AppbarTab name="Create a review" link="/create-review" />
+      <AppbarTab name="My reviews" link="/my-reviews" />
       <Link onPress={handleSignOut}>
         <Text color="navText" fontWeight="bold" fontSize="subheading" style={{ padding: 10 }}>Sign Out</Text>
       </Link>

@@ -1,48 +1,60 @@
 import { useQuery } from '@apollo/client';
-import { GET_REPOSITORIES, GET_REPOSITORY, SEARCH_REPOSITORY } from '../graphql/queries';
+import { GET_REPOSITORIES, GET_REPOSITORY } from '../graphql/queries';
 
-const useRepositories = () => {
-  const { data, loading, error, refetch } = useQuery(GET_REPOSITORIES, {
-    fetchPolicy: 'cache-and-network'
+const useRepositories = (variables) => {
+  const { data, loading, error, refetch, fetchMore, ...result } = useQuery(GET_REPOSITORIES, {
+    fetchPolicy: 'cache-and-network',
+    variables,
   });
 
-  if (!data) {
-    return { loading, error, refetch }
-  }
-  const repositories = data.repositories;
-  return { repositories, loading, error, refetch };
+  const handleFetchMore = () => {
+    const canFetchMore = !loading && data?.repositories.pageInfo.hasNextPage;
+    if (!canFetchMore) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        ...variables,
+        after: data.repositories.pageInfo.endCursor
+      },
+    });
+  };
+
+  return {
+    repositories: data?.repositories,
+    fetchMore: handleFetchMore,
+    loading,
+    ...result,
+  };
 };
 
-export const useRepository = (id) => {
-  const { data, loading, error } = useQuery(GET_REPOSITORY, {
+export const useRepository = (variables) => {
+  const { data, loading, error, refetch, fetchMore, ...result } = useQuery(GET_REPOSITORY, {
     fetchPolicy: 'cache-and-network',
-    variables: {
-      repositoryId: id
-    }
+    variables
   });
 
-  if (loading || error) {
-    return { loading, error };
-  }
+  const handleFetchMore = () => {
+    const canFetchMore = !loading && data?.repository?.reviews?.pageInfo.hasNextPage;
+    if (!canFetchMore) {
+      return;
+    }
 
-  const repository = data.repository;
-  return { repository, loading };
+    fetchMore({
+      variables: {
+        ...variables,
+        after: data.repository?.reviews?.pageInfo.endCursor,
+      },
+    });
+  };
+
+  return {
+    repository: data?.repository,
+    fetchMore: handleFetchMore,
+    loading,
+    ...result,
+  };
 };
-
-export const useSearchRepo = (keyword) => {
-  const { data, loading, error } = useQuery(SEARCH_REPOSITORY, {
-    fetchPolicy: 'cache-and-network',
-    variables: {
-      searchKeyword: keyword
-    }
-  });
-
-  if (loading || error) {
-    return { loading, error };
-  }
-
-  const searchData = data.repositories;
-  return { searchData, loading };
-}
 
 export default useRepositories;

@@ -1,11 +1,8 @@
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import RepositoryItem from './RepositoryItem';
 import theme from '../theme';
-import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { Searchbar } from 'react-native-paper';
-import { useSearchRepo } from '../hooks/useRepositories';
-import { useDebounce } from 'use-debounce';
 
 const styles = StyleSheet.create({
   separator: {
@@ -25,39 +22,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   main: {
+    flex: 1,
     backgroundColor: theme.colors.mainComponent,
   }
 });
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-const RepositoryListContainer = ({ repositories, navigateRepo }) => {
-  const [orderBy, setorderBy] = useState('CREATED_AT');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debounceQuery] = useDebounce(searchQuery, 500);
-  const { searchData, loading } = useSearchRepo(debounceQuery);
+const RepositoryListContainer = props => {
+  const { repositories, navigateRepo, onEndReached, loading } = props;
+  const { searchKeyword, orderBy, orderDirection } = props;
+  const { setSearchKeyword, setOrderBy, setOrderDirection } = props;
 
-  const onChangeSearch = query => setSearchQuery(query);
+  const onChangeSearch = query => setSearchKeyword(query);
 
   // Get the nodes from the edges array
-  const repositoriesFinal = searchQuery !== '' ? searchData : repositories;
-  const repositoryNodes = repositoriesFinal
-    ? repositoriesFinal.edges.map(edge => edge.node)
-    : [];
-
-  const sortedNodes = sortArray(repositoryNodes, orderBy);
-
-  const PickerContainer = props => {
+  const repositoryNodes = repositories ? repositories.edges.map(edge => edge.node) : [];
+  const PickerContainer = () => {
     return (
       <View style={styles.pickerContainer}>
         <Picker
           style={styles.onePicker}
-          selectedValue={orderBy}
-          onValueChange={(itemValue, itemIndex) => {
-            console.log(itemIndex, itemValue);
-            setorderBy(itemValue)
+          selectedValue={`${orderBy}_${orderDirection}`}
+          onValueChange={(itemValue) => {
+            if (itemValue === 'RATING_AVERAGE_DESC') {
+              setOrderBy('RATING_AVERAGE');
+              setOrderDirection('DESC');
+            } else if (itemValue === 'RATING_AVERAGE_ASC') {
+              setOrderBy('RATING_AVERAGE');
+              setOrderDirection('ASC');
+            } else {
+              setOrderBy('CREATED_AT');
+              setOrderDirection('DESC');
+            }
           }}>
-          <Picker.Item label="Latest repositories" value="CREATED_AT" />
+          <Picker.Item label="Latest repositories" value="CREATED_AT_DESC" />
           <Picker.Item label="Highest rated repositories" value="RATING_AVERAGE_DESC" />
           <Picker.Item label="Lowest rated repositories" value="RATING_AVERAGE_ASC" />
         </Picker>
@@ -70,14 +69,16 @@ const RepositoryListContainer = ({ repositories, navigateRepo }) => {
       <Searchbar style={{ margin: 10, height: 44 }}
         placeholder="Search"
         onChangeText={onChangeSearch}
-        value={searchQuery}
+        value={searchKeyword}
       />
       {loading ? null :
         <FlatList
-          data={sortedNodes}
+          data={repositoryNodes}
           ItemSeparatorComponent={ItemSeparator}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={<PickerContainer />}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.7}
           renderItem={({ item }) => {
             return (
               <Pressable onPress={() => navigateRepo & navigateRepo(item.id)}>
@@ -90,29 +91,5 @@ const RepositoryListContainer = ({ repositories, navigateRepo }) => {
     </View>
   );
 };
-
-const sortArray = (repositories, orderBy) => {
-  return repositories.sort((item1, item2) => {
-    if (orderBy === "CREATED_AT") {
-      const latestReview1 = item1.reviews && item1.reviews.edges ? item1.reviews.edges.slice(-1)[0] : null;
-      const latestReview2 = item2.reviews && item2.reviews.edges ? item2.reviews.edges.slice(-1)[0] : null;
-      if (latestReview1 && latestReview2) {
-        const date1 = new Date(latestReview1.node.createdAt);
-        const date2 = new Date(latestReview2.node.createdAt);
-        const result = date2 - date1;
-        // console.log(item1.id, "-------", result, "------", item2.id);
-        return result;
-      } else if (latestReview1) {
-        return -1;
-      } else {
-        return 1;
-      }
-    } else if (orderBy === "RATING_AVERAGE_ASC") {
-      return item1.ratingAverage - item2.ratingAverage;
-    } else {
-      return item2.ratingAverage - item1.ratingAverage;
-    }
-  });
-}
 
 export default RepositoryListContainer;

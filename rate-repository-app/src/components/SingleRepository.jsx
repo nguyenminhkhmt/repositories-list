@@ -28,18 +28,18 @@ const styles = StyleSheet.create({
   }
 });
 
-const ItemSeparator = () => <View style={styles.separator} />;
+export const ItemSeparator = () => <View style={styles.separator} />;
 
 const formatDate = (date) => {
   Moment.locale('en');
   return Moment(date).format('DD.MM.yyyy');
 };
 
-const ReviewItem = ({ review }) => {
+export const ReviewItem = ({ review }) => {
   return (
     <HorisontalView>
       <View style={styles.circle}>
-        <Text fontWeight="bold" fontSize="subheading" color="primary">{review.rating}</Text>
+        <Text fontWeight="bold" fontSize="subheading" color="primary" style={{ textAlign: 'center' }}>{review.rating}</Text>
       </View>
       <VerticalView>
         <Text fontWeight="bold">{review.user.username}</Text>
@@ -61,7 +61,11 @@ const RepositoryInfo = ({ repository, openInGitHub }) => {
 };
 
 const SingleRepository = ({ repositoryId }) => {
-  const { repository, loading, error } = useRepository(repositoryId);
+  const params = {
+    repositoryId,
+    first: 5
+  }
+  const { repository, loading, error, fetchMore } = useRepository(params);
   if (loading) {
     return <Text>Loading...!</Text>;
   }
@@ -70,19 +74,22 @@ const SingleRepository = ({ repositoryId }) => {
   }
 
   const openInGitHub = () => {
-    console.log(repository.url);
     Linking.openURL(repository.url);
   }
 
-  const reviews = repository.reviews.edges.map(edge => edge.node);
-  console.log(reviews);
+  const onEndReached = () => {
+    fetchMore();
+  };
 
+  const reviews = repository.reviews.edges.map(edge => edge.node);
   return (
     <FlatList
       data={reviews}
       ItemSeparatorComponent={ItemSeparator}
       renderItem={({ item }) => <ReviewItem review={item} />}
       keyExtractor={({ id }) => id}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.7}
       ListHeaderComponent={() => <RepositoryInfo repository={repository} openInGitHub={openInGitHub} />}
     />
   )
